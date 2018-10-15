@@ -1,0 +1,52 @@
+ Role-based Access Control Using Route-based Permissions With Permissible Objects V 0.0.0
+Author: LFABordeos
+Date: Oct 15, 2018
+
+Extended version of RBAC that checks authorization using route-based permissions assigned to user roles, 
+with use of permissible objects to extend dynamic rules such as "allow a user to edit only owned post".
+
+Regular RBAC using routes.
+
+Roles:
+    - name
+    - timestamps
+    - weight
+
+Role Permissions
+    - role_id
+    - permission_id
+
+Permissions
+     - name
+     - route      -- /api/doctors/{doctor_id}/schedules/{schedule_id}
+     - method     -- [GET, POST, PUT, PATCH, DELETE]
+     - is_allowed
+
+Permissible Objects
+    - identifier
+    - class
+    - owner_column - doctor.id
+    - viewable_by  - [all]
+    - creatable_by - [role_name1, role_name2]
+    - editable_by  - [role_name1, owner]
+    - deletable_by - [role_name1, owner]
+
+User Roles
+    - user_id
+    - role_id
+
+REQUEST FLOW:
+Ex: PATCH /api/doctors/1/schedules/1
+
+1. RBAC middleware(M) reads request.
+2. M fetches current user's role (doctor).
+3. M matches request url to permissions allowed to "doctor" role.
+    - All ids found in the url segments and "variables" in the permission routes are converted to "*" for matching.
+4. M sees that a permission matched the request, but has variables.
+5. M extracts the last permissible objects "doctors" and "schedules"
+6. M processes "doctors" with the access is considered as a "view" since it is not the last object found in the url.
+7. M processes "schedules", the last object in the url, considering the request method (PATCH).
+    - Since "editable_by" is only granted to owner and role_name1, M then checks if the user owns the object being accessed
+    - (new {class})::where(['doctor_id', user->doctor->id], ['id', 1])->first()
+    - If found, user is then granted access
+    - Else abort 403
