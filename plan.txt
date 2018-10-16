@@ -1,8 +1,8 @@
- Role-based Access Control Using Route-based Permissions With Permissible Objects V 0.0.0
+Role-based Access Control Using Route-based Permissions With Permissible Objects V 0.0.0
 Author: LFABordeos
 Date: Oct 15, 2018
 
-Extended version of RBAC that checks authorization using route-based permissions assigned to user roles, 
+Extended version of RBAC that checks authorization using route-based permissions assigned to user roles,
 with use of permissible objects to extend dynamic rules such as "allow a user to edit only owned post".
 
 Regular RBAC using routes.
